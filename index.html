@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EBSR Oy</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+
+      body {
+        background: linear-gradient(45deg, #e65100, #bf360c, #ffcc80, #424242);
+      }
+
+      .ebsr {
+        position: absolute;
+        width: 100px;
+        height: 100px;
+        background-image: url("logo.png");
+        background-size: cover;
+        border-radius: 50%;
+        transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+      }
+
+      .highlight {
+        border: 5px solid yellow;
+        box-shadow: 0 0 10px yellow;
+      }
+
+      .ebsr:hover,
+      .ebsr:active {
+        opacity: 0;
+        transform: scale(0.5);
+      }
+
+      .email-container {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-family: Arial, sans-serif;
+        font-size: 16px;
+        color: #fff;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+      }
+
+      .email-container a {
+        color: #fffd00;
+        text-decoration: none;
+      }
+
+      .email-container a:hover {
+        text-decoration: underline;
+      }
+
+      .counter {
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-family: Arial, sans-serif;
+        font-size: 18px;
+        color: #fff;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="ebsr-container"></div>
+    <div class="counter">Popped: <span id="click-count">0</span></div>
+    <div class="email-container">
+      <p>
+        Contact us:
+        <a href="mailto:info@betonisahausjarakennus.fi"
+          >info@betonisahausjarakennus.fi</a
+        ><br />
+        Phone: <a href="tel:+358406733666">+358406733666</a><br />
+        Address:
+        <a
+          href="https://www.google.com/maps?q=Kyllikintie+42+A,+01420+Vantaa,+Suomi"
+          target="_blank"
+          >Kyllikintie 42 A, 01420 Vantaa, Suomi</a
+        >
+      </p>
+    </div>
+
+    <script>
+      const ebsrContainer = document.getElementById("ebsr-container");
+      const clickCountSpan = document.getElementById("click-count");
+
+      let clickCount = 0;
+      let waitingForPair = false;
+      let pair = [];
+
+      const backgrounds = [
+        "linear-gradient(45deg, #ff9a8b, #fddc6e, #ff6f61)",
+        "linear-gradient(45deg, #a8d0e6, #f0f7f4, #f4c7c3)",
+        "linear-gradient(45deg, #d1e0e0, #f4f0fb, #a8c4d2)",
+        "linear-gradient(45deg, #c2e0c6, #e9f0d8, #f9e0d8)",
+      ];
+      let backgroundIndex = 0;
+
+      function createebsr() {
+        const ebsr = document.createElement("div");
+        ebsr.classList.add("ebsr");
+
+        ebsr.style.left = `${Math.random() * window.innerWidth}px`;
+        ebsr.style.top = `${Math.random() * window.innerHeight}px`;
+
+        // Если нужно создать пару
+        if (waitingForPair) {
+          waitingForPair = false;
+          pair.push(ebsr);
+          ebsr.classList.add("highlight");
+        } else {
+          pair.push(ebsr);
+          setTimeout(() => {
+            if (pair.length === 2) {
+              pair[0].classList.add("highlight");
+              pair[1].classList.add("highlight");
+              waitingForPair = true;
+            }
+          }, Math.random() * 3000 + 2000); // Случайное время появления пары
+        }
+
+        ebsr.addEventListener("mouseenter", () => disappearebsr(ebsr));
+        ebsr.addEventListener("touchstart", () => disappearebsr(ebsr));
+
+        ebsrContainer.appendChild(ebsr);
+
+        setTimeout(() => {
+          ebsr.remove();
+          pair = []; // Очистить пару
+        }, 25000);
+
+        animateebsr(ebsr);
+      }
+
+      function disappearebsr(ebsr) {
+        ebsr.style.opacity = "0";
+        ebsr.style.transform = "scale(0.5)";
+        setTimeout(() => ebsr.remove(), 300);
+
+        clickCount++;
+        clickCountSpan.textContent = clickCount;
+
+        // Проверяем, исчезли ли обе  из пары
+        if (pair.length === 2) {
+          if (pair[0].style.opacity === "0" && pair[1].style.opacity === "0") {
+            pair = [];
+          }
+        }
+
+        // Меняем фон каждые 50 лопнувших
+        if (clickCount % 50 === 0) {
+          document.body.style.background = backgrounds[backgroundIndex];
+          backgroundIndex = (backgroundIndex + 1) % backgrounds.length;
+        }
+      }
+
+      function animateebsr(ebsr) {
+        const speedX = (Math.random() - 0.5) * 3;
+        const speedY = (Math.random() - 0.5) * 3;
+
+        let x = parseFloat(ebsr.style.left);
+        let y = parseFloat(ebsr.style.top);
+
+        function bounce() {
+          x += speedX;
+          y += speedY;
+
+          if (x < 0 || x > window.innerWidth - 100) {
+            ebsr.style.left = `${x < 0 ? 0 : window.innerWidth - 100}px`;
+          } else {
+            ebsr.style.left = `${x}px`;
+          }
+
+          if (y < 0 || y > window.innerHeight - 100) {
+            ebsr.style.top = `${y < 0 ? 0 : window.innerHeight - 100}px`;
+          } else {
+            ebsr.style.top = `${y}px`;
+          }
+
+          requestAnimationFrame(bounce);
+        }
+
+        bounce();
+      }
+
+      setInterval(createebsr, 1000);
+    </script>
+  </body>
+</html>
